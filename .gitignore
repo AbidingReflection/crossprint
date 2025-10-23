@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__
+
+scripts/context_bundle_output/
+scripts/file_tree_output/
+
+# Ignore everything in input except the examples folder
+input/*
+!input/
+!input/examples/
+
+output/

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>crossPrint</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="left">
+      <button id="btn-open">Open</button>
+      <button id="btn-anchors" disabled>Anchors</button>
+      <button id="btn-crop" disabled>Crop</button>
+      <button id="btn-threshold" disabled>Threshold</button>
+      <button id="btn-export" disabled>Export</button>
+    </div>
+    <div class="right" id="status">Ready</div>
+  </header>
+
+  <main>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="stage" width="1024" height="768"></canvas>
+    </div>
+    <aside class="sidebar">
+      <div id="panel-anchors" class="panel hidden">
+        <h3>Anchors</h3>
+        <p>Click to add/move the 4 corner points. Wheel = zoom, Middle-drag = pan.</p>
+        <button id="apply-anchors" disabled>Apply Perspective</button>
+      </div>
+
+      <div id="panel-crop" class="panel hidden">
+        <h3>Crop</h3>
+        <p>Drag the edge lines. They move only along their axis.</p>
+        <div class="grid2">
+          <label>Left <input id="crop-left" type="number"></label>
+          <label>Top <input id="crop-top" type="number"></label>
+          <label>Right <input id="crop-right" type="number"></label>
+          <label>Bottom <input id="crop-bottom" type="number"></label>
+        </div>
+        <button id="apply-crop">Apply Crop</button>
+      </div>
+
+      <div id="panel-threshold" class="panel hidden">
+        <h3>Threshold</h3>
+        <input id="thr" type="range" min="0" max="255" value="128" />
+        <div class="grid2">
+          <span>Value: <span id="thr-val">128</span></span>
+          <button id="btn-otsu">Auto (Otsu)</button>
+        </div>
+        <button id="apply-threshold">Apply Threshold</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
