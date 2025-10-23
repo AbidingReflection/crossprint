@@ -31,7 +31,7 @@ class ImageStore:
         if long_edge > self.preview_long_edge:
             scale = self.preview_long_edge / long_edge
             new_size = (max(1, int(w * scale)), max(1, int(h * scale)))
-            prev = im.resize(new_size, Image.LANCZOS)
+            prev = im.resize(new_size, Image.Resampling.LANCZOS)
         else:
             prev = im.copy()
         return prev, scale
@@ -44,7 +44,7 @@ class ImageStore:
             return im
         scale = self.full_cap_long_edge / long_edge
         new_size = (max(1, int(w * scale)), max(1, int(h * scale)))
-        return im.resize(new_size, Image.LANCZOS)
+        return im.resize(new_size, Image.Resampling.LANCZOS)
 
     def create(self, pil_image: Image.Image) -> Tuple[int, ImageEntry]:
         """Add a new image and return its ID and entry."""
