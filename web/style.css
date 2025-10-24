@@ -82,7 +82,7 @@ main { display: flex; height: calc(100vh - 48px); }
     border-left: 1px solid #e5e7eb;
     background: #fff;
     padding: 12px;
-    overflow: auto;
+    overflow-y: auto; /* ensure scrollable for short viewports */
 }
 
 .panel {
@@ -95,11 +95,36 @@ main { display: flex; height: calc(100vh - 48px); }
 
 .hidden { display: none; }
 
+/* Default grid used elsewhere stays 2 cols */
 .grid2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     align-items: center;
+}
+
+/* Stack crop inputs vertically without touching other panels */
+#panel-crop .grid2 {
+grid-template-columns: 1fr;
+}
+
+/* Make labels and inputs full-width, stacked */
+#panel-crop label {
+display: flex;
+flex-direction: column;
+align-items: stretch;
+gap: 6px;
+}
+
+/* Ensure inputs fill the panel width */
+#panel-crop input[type=number],
+#panel-crop input[type=range] {
+width: 100%;
+}
+
+/* Give sliders some breathing room */
+#panel-crop input[type=range] {
+margin: 2px 0 10px 0;
 }
 
 label {
@@ -109,6 +134,7 @@ label {
     gap: 8px;
 }
 
+/* Keep generic number width for non-crop panels; crop panel overrides above */
 input[type=number] { width: 110px; }
 
 #status { color: var(--muted); }

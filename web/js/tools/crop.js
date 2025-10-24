@@ -78,13 +78,13 @@ export function onMove(e) {
     if (!crop) return;
 
     let { left, right, top, bottom } = crop;
-    if (dragEdge === 'L') left   = Math.min(Math.max(0, p.x), right - 1);
-    if (dragEdge === 'R') right  = Math.max(Math.min(imgW, p.x), left + 1);
-    if (dragEdge === 'T') top    = Math.min(Math.max(0, p.y), bottom - 1);
-    if (dragEdge === 'B') bottom = Math.max(Math.min(imgH, p.y), top + 1);
+    if (dragEdge === 'L') left   = Math.min(Math.max(0, Math.floor(p.x)), right - 1);
+    if (dragEdge === 'R') right  = Math.max(Math.min(imgW, Math.floor(p.x)), left + 1);
+    if (dragEdge === 'T') top    = Math.min(Math.max(0, Math.floor(p.y)), bottom - 1);
+    if (dragEdge === 'B') bottom = Math.max(Math.min(imgH, Math.floor(p.y)), top + 1);
 
     setCrop({ left, right, top, bottom });
-    syncCropInputs();
+    syncCropInputs();                       // updates numbers + sliders
     setApplyEnabled(isValidCrop(getState().crop));
     scheduleRender();
 }
