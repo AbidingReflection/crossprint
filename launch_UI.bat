@@ -23,7 +23,7 @@ if not defined VENV_DIR (
   set "VENV_DIR=.venv"
 )
 
-set "PYEXE=%VENV_DIR%\Scripts\python.exe"
+set "PYEXE=%VENV_DIR%\Scripts\pythonw.exe"
 if not exist "%PYEXE%" (
   echo [error] Python not found in %VENV_DIR%
   exit /b 1
