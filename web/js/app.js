@@ -13,6 +13,7 @@ import {
     setImageName,
     setMode,
     setCrop,
+    setThresholdPreviewValue,
 } from './data/state.js';
 import { setCheckpoint, setWorking } from './data/history.js';
 
@@ -191,11 +192,15 @@ async function openFromSource({ path, file, displayName }) {
     // Clear any stale crop rect when a NEW image is loaded
     setCrop(null);
 
+    // Clear any live threshold preview so new images don't auto-apply visuals
+    setThresholdPreviewValue(null);
+
     fitToScreen();
     enableAfterLoad();
     setStatus(`Image loaded${(displayName || file?.name) ? ': ' + (displayName || file?.name) : ''}`);
     scheduleRender();
 }
+
 
 // ----- Canvas interactions (all coalesced) -----
 function wireCanvasInteractions() {

@@ -127,6 +127,12 @@ width: 100%;
 margin: 2px 0 10px 0;
 }
 
+#panel-threshold input[type=range] {
+width: 100%;
+box-sizing: border-box;
+margin: 2px 0 10px 0;
+}
+
 label {
     display: flex;
     justify-content: space-between;

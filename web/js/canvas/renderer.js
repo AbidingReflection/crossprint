@@ -7,6 +7,15 @@ const canvas = document.querySelector('#stage');
 const ctx = canvas.getContext('2d');
 const wrap = document.querySelector('#canvasWrap');
 
+// Cache for threshold preview to avoid recomputing every rAF
+let thrCache = {
+    value: null,
+    imgId: null,
+    bitmap: null,
+    w: 0,
+    h: 0,
+};
+
 // Coalesced redraws
 let _rafId = 0;
 export function scheduleRender() {
@@ -60,15 +69,56 @@ function renderCrop() {
     ctx.restore();
 }
 
-export function render() {
-    const { imageBitmap, imgW, imgH, panX, panY, zoom, mode } = getState();
+async function ensureThresholdPreviewBitmap() {
+    const { imageBitmap, imgW, imgH, imageId, preview } = getState();
+    const value = preview.thresholdValue;
+    if (!imageBitmap || value == null) {
+        thrCache.value = null;
+        thrCache.imgId = null;
+        thrCache.bitmap = null;
+        return;
+    }
+    if (thrCache.bitmap && thrCache.value === value && thrCache.imgId === imageId) return;
+
+    const off = new OffscreenCanvas(imgW, imgH);
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    octx.drawImage(imageBitmap, 0, 0, imgW, imgH);
+    const imgData = octx.getImageData(0, 0, imgW, imgH);
+    const data = imgData.data;
+    const thr = value|0;
+
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i+1], b = data[i+2];
+        const lum = (r * 0.2126 + g * 0.7152 + b * 0.0722) | 0;
+        const v = lum >= thr ? 255 : 0;
+        data[i] = data[i+1] = data[i+2] = v;
+    }
+    octx.putImageData(imgData, 0, 0);
+
+    const blob = await off.convertToBlob({ type: 'image/png' });
+    const bmp = await createImageBitmap(blob);
+
+    thrCache.value = value;
+    thrCache.imgId = imageId;
+    thrCache.bitmap = bmp;
+    thrCache.w = imgW;
+    thrCache.h = imgH;
+}
+
+export async function render() {
+    const { imageBitmap, imgW, imgH, panX, panY, zoom, mode, preview } = getState();
     canvas.width  = wrap.clientWidth;
     canvas.height = wrap.clientHeight;
 
     ctx.fillStyle = '#111';
     ctx.fillRect(0,0,canvas.width, canvas.height);
 
-    if (imageBitmap) {
+    // Only show live threshold preview while actively in the Threshold tool.
+    if (mode === 'threshold' && preview.thresholdValue != null) {
+        await ensureThresholdPreviewBitmap();
+        const bmp = thrCache.bitmap || imageBitmap;
+        if (bmp) ctx.drawImage(bmp, panX, panY, imgW * zoom, imgH * zoom);
+    } else if (imageBitmap) {
         ctx.drawImage(imageBitmap, panX, panY, imgW * zoom, imgH * zoom);
     }
 

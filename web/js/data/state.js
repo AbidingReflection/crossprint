@@ -16,11 +16,23 @@ const state = {
         dirty: false,
         name: '',
     },
+
+    // Tool-specific UI state
+    tools: {
+        threshold: {
+            value: 128, // last chosen threshold value (for UI)
+        },
+    },
+
+    // Preview-only state that never mutates the backend image
+    preview: {
+        thresholdValue: null, // when set, renderer shows live threshold preview
+    },
 };
 
 export function getState() { return state; }
 
-// Image & preview
+// Image & preview bitmaps
 export function setImageBitmap(bm) {
     state.imageBitmap = bm;
     state.imgW = bm?.width || 0;
@@ -50,3 +62,10 @@ export function pushAnchor(p) { state.anchors.push(p); }
 
 // Crop
 export function setCrop(c) { state.crop = c; }
+
+// Threshold (tool + preview)
+export function setThresholdUIValue(v) { state.tools.threshold.value = Math.max(0, Math.min(255, v|0)); }
+export function setThresholdPreviewValue(vOrNull) {
+    if (vOrNull === null || vOrNull === undefined) state.preview.thresholdValue = null;
+    else state.preview.thresholdValue = Math.max(0, Math.min(255, vOrNull|0));
+}
