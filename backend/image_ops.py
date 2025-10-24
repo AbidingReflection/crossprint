@@ -4,13 +4,28 @@ from pathlib import Path
 from typing import Tuple
 
 import numpy as np
+import time
 from PIL import Image, ImageOps
 from skimage import transform as tf
 
 
-def tz_abbr_now() -> str:
-    """Return the local timezone abbreviation (e.g., MDT)."""
-    return datetime.now().astimezone().tzname() or "LOCAL"
+def tz_abbr_now(iana_zone: str = "America/Denver") -> str:
+    """Return a stable Mountain Time abbreviation ('MST'/'MDT') cross-platform.
+
+    Primary: use IANA zone via zoneinfo to format %Z (needs tzdata on Windows).
+    Fallback: use local DST flag heuristic to choose MST/MDT.
+    """
+    try:
+        if ZoneInfo is not None:
+            z = ZoneInfo(iana_zone)
+            # %Z from IANA reliably yields 'MST' or 'MDT'
+            return datetime.now(z).strftime("%Z") or "MT"
+    except Exception:
+        pass
+
+    # Fallback if tzdata/zoneinfo is unavailable:
+    is_dst = time.localtime().tm_isdst == 1
+    return "MDT" if is_dst else "MST"
 
 
 def enforce_exif_orientation(im: Image.Image) -> Image.Image:
