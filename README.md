@@ -36,4 +36,14 @@ Both scripts:
 * Place source images in `input/`
 * Processed files are saved to `output/`
 
-```
+## Targeted Transformations
+
+Each stage can be performed independently or in sequence:
+
+| Transformation       | Purpose                                                        | User Control                                        |
+| -------------------- | -------------------------------------------------------------- | --------------------------------------------------- |
+| **Deskew**           | Correct perspective distortion by defining four corner points. | Manual point placement on image.                    |
+| **Crop**             | Trim borders or isolate the puzzle grid.                       | Edge handles, numeric inputs, and per-edge sliders. |
+| **B/W Thresholding** | Convert the image to high-contrast black and white for print.  | Adjustable slider with optional Otsu auto-detect.   |
+| **Export**           | Save the processed image to the `output/` directory.           | Auto-generated filename with timestamp.             |
+
