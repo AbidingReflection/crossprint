@@ -2,7 +2,7 @@
 // Entry: wires DOM, state, viewport, tools, and API with startup/paint gating.
 
 import { setStatus } from './ui/status.js';
-import { enableAfterLoad, wireCropInputs } from './ui/panels.js';
+import { enableAfterLoad, wireCropInputs, wireResetCrop } from './ui/panels.js';
 
 import {
     getState,
@@ -11,6 +11,8 @@ import {
     setImageLoaded,
     setImageDirty,
     setImageName,
+    setMode,
+    setCrop,
 } from './data/state.js';
 import { setCheckpoint, setWorking } from './data/history.js';
 
@@ -49,9 +51,9 @@ function wireUI() {
         Anchors.enter?.();
     });
 
+    // Top "Crop" button is now context-aware (enter/apply)
     document.querySelector('#btn-crop').addEventListener('click', ()=>{
-        setStatus('Mode: Crop');
-        Crop.enter?.();
+        Crop.topMenuAction();
     });
 
     document.querySelector('#btn-threshold').addEventListener('click', ()=>{
@@ -67,19 +69,28 @@ function wireUI() {
             const { imageId } = getState();
             setCheckpoint(imageId);
             setWorking(imageId);
-            setImageDirty(true);       // <<< ensure confirm-on-open triggers
+            setImageDirty(true);
             scheduleRender();
         });
     }
 
     // Crop inputs + apply -> mark dirty + checkpoint
     wireCropInputs(()=>scheduleRender());
+
     document.querySelector('#apply-crop').addEventListener('click', async ()=>{
         await Crop.apply?.();
         const { imageId } = getState();
         setCheckpoint(imageId);
         setWorking(imageId);
-        setImageDirty(true);           // <<< ensure confirm-on-open triggers
+        setImageDirty(true);
+        scheduleRender();
+    });
+
+    // Inject + wire Reset Crop (with confirm)
+    wireResetCrop(async ()=>{
+        const ok = window.confirm('Reset crop handles to full image?');
+        if (!ok) return;
+        Crop.resetToFull();
         scheduleRender();
     });
 
@@ -93,7 +104,7 @@ function wireUI() {
             const { imageId } = getState();
             setCheckpoint(imageId);
             setWorking(imageId);
-            setImageDirty(true);       // <<< ensure confirm-on-open triggers
+            setImageDirty(true);
             scheduleRender();
         });
     }
@@ -176,6 +187,9 @@ async function openFromSource({ path, file, displayName }) {
     setImageLoaded(true);
     setImageDirty(false);                          // reset on successful open
     setImageName(displayName || file?.name || '');
+
+    // Clear any stale crop rect when a NEW image is loaded
+    setCrop(null);
 
     fitToScreen();
     enableAfterLoad();
