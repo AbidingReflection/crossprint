@@ -10,15 +10,10 @@ from skimage import transform as tf
 
 
 def tz_abbr_now(iana_zone: str = "America/Denver") -> str:
-    """Return a stable Mountain Time abbreviation ('MST'/'MDT') cross-platform.
-
-    Primary: use IANA zone via zoneinfo to format %Z (needs tzdata on Windows).
-    Fallback: use local DST flag heuristic to choose MST/MDT.
-    """
+    """Return consistent MDT/MST abbreviation using zoneinfo with DST fallback."""
     try:
         if ZoneInfo is not None:
             z = ZoneInfo(iana_zone)
-            # %Z from IANA reliably yields 'MST' or 'MDT'
             return datetime.now(z).strftime("%Z") or "MT"
     except Exception:
         pass
@@ -137,6 +132,6 @@ def export_png(im: Image.Image, out_dir: Path) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     tz = tz_abbr_now()
-    path = out_dir / f"crossprint_{stamp}_{tz}.png"
+    path = out_dir / f"puzzle_{stamp}_{tz}.png"
     im.save(path, format="PNG")
     return path
