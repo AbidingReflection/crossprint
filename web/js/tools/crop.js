@@ -1,6 +1,7 @@
+// web/js/tools/crop.js
 import { getState, setMode, setCrop, setImageBitmap } from '../data/state.js';
-import { render } from '../canvas/renderer.js';
-import { fromCanvas, toCanvas, fitToScreen } from '../canvas/viewport.js';
+import { scheduleRender } from '../canvas/renderer.js';
+import { fromCanvas, fitToScreen } from '../canvas/viewport.js';
 import { applyCrop, getPreviewPng } from '../api/images.js';
 import { showCropPanel, syncCropInputs } from '../ui/panels.js';
 import { setStatus } from '../ui/status.js';
@@ -16,12 +17,12 @@ export function enter() {
 
     showCropPanel();
     syncCropInputs();
-    render();
+    scheduleRender();
 }
 
 export function onLeftDown(e) {
-    const { crop } = getState();
-    if (!crop) return;
+    const { crop, imageBitmap } = getState();
+    if (!imageBitmap || !crop) return;
     const rect = canvas.getBoundingClientRect();
     const p = fromCanvas({ x: e.clientX - rect.left, y: e.clientY - rect.top });
 
@@ -52,7 +53,7 @@ export function onMove(e) {
 
     setCrop({ left, right, top, bottom });
     syncCropInputs();
-    render();
+    scheduleRender();
 }
 
 export function onMouseUp() { dragEdge = null; }
@@ -67,6 +68,7 @@ export async function apply() {
     setImageBitmap(bm);
     fitToScreen();
     setStatus('Cropped');
+    scheduleRender();
 }
 
 function loadImage(url) {

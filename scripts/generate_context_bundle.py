@@ -378,9 +378,19 @@ if __name__ == "__main__":
     output_prefix = output_dir / 'context_bundle'
 
     includes = [
-        "web/style.css",
-        "web/app.js"
-    ]
+        "web/js/data/constants.js",
+        "web/js/data/state.js",
+        "web/js/data/history.js",
+        "web/js/api/images.js",
+        "web/js/canvas/viewport.js",
+        "web/js/canvas/renderer.js",
+        "web/js/ui/status.js",
+        "web/js/ui/panels.js",
+        "web/js/tools/anchors.js",
+        "web/js/tools/crop.js",
+        "web/js/tools/threshold.js"
+  ]
+
     excludes = [
         "*.jpg", "*.png", "*.gif", "*.bmp", "*.tif", "*.tiff",
         "__pycache__/", "*.pyc", "*.pyo",

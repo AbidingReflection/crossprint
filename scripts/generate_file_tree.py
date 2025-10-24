@@ -114,6 +114,6 @@ if __name__ == "__main__":
         "prefixes": ["generated_config_"],
         "suffixes": [".swp", ".egg-info"],
         "filetypes": ["pyc", "log"],
-        "folders": ['.git', '.venv', 'venv', '__pycache__', 'logs', '.pytest_cache', 'output', 'archive', '.DS_Store', 'build', 'scripts']
+        "folders": ['.git', '.venv', 'venv', '__pycache__', 'logs', '.pytest_cache', 'archive', '.DS_Store', 'build']
     }
     generate_file_tree(target_path, output_dir / 'file_tree', exclude_config)

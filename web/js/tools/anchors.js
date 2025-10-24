@@ -1,7 +1,7 @@
-import { getState, setMode, setAnchors, updateAnchor, pushAnchor } from '../data/state.js';
+// web/js/tools/anchors.js
+import { getState, setMode, setAnchors, updateAnchor, pushAnchor, setImageBitmap } from '../data/state.js';
 import { applyHomography, getPreviewPng } from '../api/images.js';
-import { setImageBitmap } from '../data/state.js';
-import { render } from '../canvas/renderer.js';
+import { scheduleRender } from '../canvas/renderer.js';
 import { toCanvas, fromCanvas, fitToScreen } from '../canvas/viewport.js';
 import { ANCHOR_R } from '../data/constants.js';
 import { setStatus } from '../ui/status.js';
@@ -13,10 +13,11 @@ let dragAnchor = null;
 export function enter() {
     setMode('anchors');
     showAnchorsPanel();
-    render();
+    scheduleRender();
 }
 
 export function onLeftDown(e) {
+    if (!getState().imageBitmap) return; // ignore if no image yet
     const rect = canvas.getBoundingClientRect();
     const p = fromCanvas({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     const { anchors, zoom } = getState();
@@ -29,7 +30,7 @@ export function onLeftDown(e) {
         else { anchors[3] = p; } // replace last
     }
     document.querySelector('#apply-anchors').disabled = getState().anchors.length !== 4;
-    render();
+    scheduleRender();
 }
 
 export function onMove(e) {
@@ -37,7 +38,7 @@ export function onMove(e) {
     const rect = canvas.getBoundingClientRect();
     const p = fromCanvas({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     updateAnchor(dragAnchor, p);
-    render();
+    scheduleRender();
 }
 
 export function onMouseUp() {
@@ -54,6 +55,7 @@ export async function apply() {
     setAnchors([]);
     fitToScreen();
     setStatus('Perspective corrected');
+    scheduleRender();
 }
 
 async function updatePreviewFromDataUrl(url) {

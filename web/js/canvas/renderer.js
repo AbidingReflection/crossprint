@@ -1,3 +1,4 @@
+// web/js/canvas/renderer.js
 import { getState } from '../data/state.js';
 import { toCanvas } from './viewport.js';
 import { ANCHOR_R } from '../data/constants.js';
@@ -5,6 +6,16 @@ import { ANCHOR_R } from '../data/constants.js';
 const canvas = document.querySelector('#stage');
 const ctx = canvas.getContext('2d');
 const wrap = document.querySelector('#canvasWrap');
+
+// Coalesced redraws
+let _rafId = 0;
+export function scheduleRender() {
+    if (_rafId) return;
+    _rafId = requestAnimationFrame(() => {
+        _rafId = 0;
+        render();
+    });
+}
 
 function drawCrosshair(x, y) {
     const { panX, panY, zoom } = getState();

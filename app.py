@@ -1,38 +1,26 @@
+# app.py
 from pathlib import Path
-import sys
-import re
 import logging
-
 import webview
 
 from backend.api import CrossPrintAPI
 
 ASSETS = Path(__file__).parent / "web"
 
-logging.getLogger("pywebview").setLevel(logging.ERROR)
+# Keep pywebview logging reasonable during diagnosis
+logging.getLogger("pywebview").setLevel(logging.INFO)
 
-_NOISE = re.compile(
-    r"\[pywebview\] Error while processing window\.native\.(AccessibilityObject|ControlCollection|DataBindings)"
-)
-
-
-class _StderrFilter:
-    """Filter known noisy accessibility logs from stderr."""
-
-    def write(self, s: str) -> None:
-        if _NOISE.search(s):
-            return
-        sys.__stderr__.write(s)
-
-    def flush(self) -> None:
-        sys.__stderr__.flush()
-
-
-sys.stderr = _StderrFilter()
+def on_loaded(win: webview.Window):
+    print("[on_loaded] WebView DOM loaded; showing window…")
+    try:
+        win.show()
+    except Exception as e:
+        print(f"[on_loaded] window.show() raised: {e!r}")
 
 if __name__ == "__main__":
-    """Launch the crossPrint UI."""
+    print("[main] Creating API and window…")
     api = CrossPrintAPI()
+
     window = webview.create_window(
         title="crossPrint",
         url=str(ASSETS / "index.html"),
@@ -41,6 +29,18 @@ if __name__ == "__main__":
         height=800,
         resizable=True,
         text_select=False,
+        hidden=True,      # start hidden to avoid early interaction
+        # NOTE: 'allow_file_drop' is not supported in pywebview 6.1
     )
     api.set_window(window)
-    webview.start(debug=True)
+
+    print("[main] Starting GUI loop (http_server=True)…")
+    webview.start(
+        on_loaded,
+        args=(window,),
+        debug=False,
+        http_server=True,
+        # Don't force a GUI backend; let pywebview choose
+        # gui="edgechromium",
+    )
+    print("[main] webview.start() returned.")

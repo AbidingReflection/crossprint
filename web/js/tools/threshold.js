@@ -1,7 +1,8 @@
+// web/js/tools/threshold.js
 import { getState, setMode, setImageBitmap } from '../data/state.js';
 import { getCheckpoint, getWorking, APPLY_THRESHOLD_FROM_CHECKPOINT } from '../data/history.js';
 import { applyThreshold, getPreviewPng } from '../api/images.js';
-import { render } from '../canvas/renderer.js';
+import { scheduleRender } from '../canvas/renderer.js';
 import { showThresholdPanel } from '../ui/panels.js';
 import { setStatus } from '../ui/status.js';
 
@@ -11,13 +12,15 @@ const thrVal = document.querySelector('#thr-val');
 export function enter() {
     setMode('threshold');
     showThresholdPanel();
-    // keep displayed value in sync
     thrVal.textContent = thr.value;
-    render();
+    scheduleRender();
 }
 
 export function wireControls() {
-    thr.addEventListener('input', ()=>{ thrVal.textContent = thr.value; render(); });
+    thr.addEventListener('input', ()=>{
+        thrVal.textContent = thr.value;
+        scheduleRender();
+    });
     document.querySelector('#btn-otsu').addEventListener('click', applyOtsu);
     document.querySelector('#apply-threshold').addEventListener('click', applyManual);
 }
@@ -44,7 +47,7 @@ async function refreshPreview(imageId, doneMsg) {
     const dataUrl = await getPreviewPng(imageId);
     const bm = await createImageBitmap(await loadImage(dataUrl));
     setImageBitmap(bm);
-    render();
+    scheduleRender();
     setStatus(doneMsg);
 }
 
