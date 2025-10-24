@@ -68,6 +68,18 @@ class CrossPrintAPI:
         entry.threshold_base = None
         return {"image_id": iid, "meta": self.store.meta(iid)}
 
+
+    def load_image_from_bytes(self, filename: str, data: list[int]) -> Dict[str, Any]:
+        """Register image bytes from frontend and return image_id for preview/export."""
+        buf = BytesIO(bytes(data))
+        im = Image.open(buf)
+        im = enforce_exif_orientation(im)
+        iid, entry = self.store.create(im)
+        entry.threshold_base = None
+        return {"image_id": iid, "meta": self.store.meta(iid)}
+
+
+
     def get_preview_png(self, image_id: int) -> str:
         """Return the preview image as a data URL (PNG)."""
         data = self.store.to_bytes_preview(image_id)

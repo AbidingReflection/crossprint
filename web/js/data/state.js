@@ -9,6 +9,13 @@ const state = {
 
     anchors: [],  // [{x,y}] in preview/image space
     crop: null,   // {left, top, right, bottom} in preview/image space
+
+    // Image bookkeeping for UX (drag-drop, confirm-on-dirty, status)
+    image: {
+        loaded: false,
+        dirty: false,
+        name: '',
+    },
 };
 
 export function getState() { return state; }
@@ -20,6 +27,11 @@ export function setImageBitmap(bm) {
     state.imgH = bm?.height || 0;
 }
 export function setImageId(id) { state.imageId = id; }
+
+// Image helpers
+export function setImageLoaded(v) { state.image.loaded = !!v; }
+export function setImageDirty(v)  { state.image.dirty  = !!v; }
+export function setImageName(s)   { state.image.name   = s || ''; }
 
 // Viewport
 export function setViewport({ zoom, panX, panY }) {

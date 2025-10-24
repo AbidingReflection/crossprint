@@ -32,6 +32,22 @@ async function call(name, ...args) {
     });
 }
 
+// Load an image given a filename and raw bytes (Uint8Array).
+// Should return { image_id } just like loadImage(path).
+export async function loadImageFromBytes(filename, uint8) {
+    // If you’re using a pywebview bridge, you might have something like:
+    // const { image_id } = await window.pywebview.api.load_image_from_bytes(filename, Array.from(uint8));
+    // return { image_id };
+
+    // TEMP: If you don’t have the backend implemented yet, throw clearly:
+    if (!window.pywebview || !window.pywebview.api || !window.pywebview.api.load_image_from_bytes) {
+        throw new Error('Backend load_image_from_bytes not implemented');
+    }
+    const { image_id } = await window.pywebview.api.load_image_from_bytes(filename, Array.from(uint8));
+    return { image_id };
+}
+
+
 export async function openFileDialog() {
     return await call('open_file_dialog');
 }
